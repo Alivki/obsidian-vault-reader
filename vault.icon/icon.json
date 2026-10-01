@@ -1,0 +1,55 @@
+{
+  "fill" : {
+    "automatic-gradient" : "display-p3:0.30550,0.22562,0.96783,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.93119,0.96783,0.88229,1.00000"
+          },
+          "glass" : false,
+          "image-name" : "Group 48.png",
+          "name" : "Group 48",
+          "position" : {
+            "scale" : 1.25,
+            "translation-in-points" : [
+              0,
+              25.277053891154992
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "display-p3:0.93119,0.96783,0.88229,1.00000"
+          },
+          "glass" : false,
+          "image-name" : "Check.png",
+          "name" : "Check",
+          "position" : {
+            "scale" : 1.25,
+            "translation-in-points" : [
+              0,
+              20.039737212539762
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
