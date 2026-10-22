@@ -8,6 +8,7 @@ struct ReaderView: View {
     let onOpenFile: (String) -> Void
 
     @Environment(AppModel.self) private var model
+    @State private var selecting = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -15,7 +16,7 @@ struct ReaderView: View {
             Group {
                 if let path = nav.current, model.vault.contains(path) {
                     if PathPolicy.kind(of: path) == .note {
-                        NoteView(path: path).id(path)
+                        NoteView(path: path, selecting: selecting).id(path)
                     } else {
                         AttachmentView(path: path, onOpen: onOpenFile).id(path)
                     }
@@ -30,6 +31,7 @@ struct ReaderView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Shad.background.ignoresSafeArea())
+        .onChange(of: nav.current) { selecting = false }
     }
 
     private var topBar: some View {
@@ -43,6 +45,16 @@ struct ReaderView: View {
             HStack(spacing: 2) {
                 if !treeOpen { SidebarToggleButton(action: onOpenTree) }
                 Spacer()
+                if let path = nav.current, PathPolicy.kind(of: path) == .note {
+                    Button { selecting.toggle() } label: {
+                        Image(systemName: "character.cursor.ibeam")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(selecting ? Shad.link : Shad.mutedForeground)
+                    }
+                    .buttonStyle(.shad(.ghost, size: .icon))
+                    .accessibilityLabel(selecting ? "Done selecting" : "Select text")
+                    .help(selecting ? "Back to reading view" : "Select text")
+                }
                 Button(action: onClose) {
                     Image(systemName: "xmark")
                         .font(.system(size: 15, weight: .medium))

@@ -1,10 +1,18 @@
 #if DEBUG
 import Foundation
 
-/// DEBUG-only: launch with `-demoVault` to explore the UI with sample notes
-/// and no GitHub account. Compiled out of release builds.
+/// DEBUG-only: sample notes and no GitHub account. On by default in the iOS
+/// Simulator (launch with `-realVault` to sign in instead); elsewhere launch
+/// with `-demoVault`. Compiled out of release builds.
 enum DemoVault {
-    static var isEnabled: Bool { ProcessInfo.processInfo.arguments.contains("-demoVault") }
+    static var isEnabled: Bool {
+        let args = ProcessInfo.processInfo.arguments
+        #if targetEnvironment(simulator)
+        return !args.contains("-realVault")
+        #else
+        return args.contains("-demoVault")
+        #endif
+    }
 
     static let notes: [String: String] = [
         "Inbox/Quick capture.md": "# Quick capture\nLoose ideas go here.",

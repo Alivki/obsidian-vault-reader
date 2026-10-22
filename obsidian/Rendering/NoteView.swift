@@ -3,6 +3,7 @@ import SwiftUI
 
 struct NoteView: View {
     let path: String
+    var selecting = false
 
     @Environment(AppModel.self) private var model
     @ScaledMetric(relativeTo: .body) private var bodySize: CGFloat = Shad.isMac ? 16 : 17
@@ -10,7 +11,7 @@ struct NoteView: View {
 
     private enum LoadState {
         case loading
-        case loaded(PreprocessedNote)
+        case loaded(PreprocessedNote, source: String)
         case failed(String)
     }
 
@@ -20,6 +21,19 @@ struct NoteView: View {
     }
 
     var body: some View {
+        Group {
+            if selecting, case .loaded(_, let source) = state {
+                SelectableTextView(text: source, fontSize: bodySize)
+                    .frame(maxWidth: 720 + (Shad.isMac ? 80 : 44))
+                    .frame(maxWidth: .infinity)
+            } else {
+                rendered
+            }
+        }
+        .task(id: reloadKey) { await load() }
+    }
+
+    private var rendered: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 switch state {
@@ -34,7 +48,7 @@ struct NoteView: View {
                     ContentUnavailable(icon: "exclamationmark.triangle", title: "Couldn't open this note", message: message)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
-                case .loaded(let note):
+                case .loaded(let note, _):
                     if !note.properties.isEmpty {
                         PropertiesView(properties: note.properties)
                             .padding(.bottom, 44)
@@ -63,14 +77,14 @@ struct NoteView: View {
             .padding(.bottom, 96)
             .frame(maxWidth: .infinity)
         }
-        .task(id: reloadKey) { await load() }
     }
 
     private func load() async {
         do {
             let text = try await model.noteText(path)
             let note = ObsidianPreprocessor(resolver: model.vault.resolver, currentPath: path).process(text)
-            state = .loaded(note)
+            let body = Frontmatter.split(text.replacingOccurrences(of: "\r\n", with: "\n")).body
+            state = .loaded(note, source: body.trimmingCharacters(in: .whitespacesAndNewlines))
         } catch {
             if case .loaded = state { return }   // keep showing the cached render
             state = .failed((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
